@@ -1,0 +1,119 @@
+{% extends "auth_base.html" %}
+
+{% block title %}Admin Sign Up — ERPInsight{% endblock %}
+{% block header_icon %}fas fa-user-shield{% endblock %}
+{% block card_title %}Admin Registration{% endblock %}
+{% block card_subtitle %}Create your Manager account using your company code{% endblock %}
+
+{% block form_content %}
+<form method="post" action="{% url 'accounts:admin_signup' %}">
+  {% csrf_token %}
+
+  <!-- Company Code -->
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Company Code <span class="text-danger">*</span></label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-building text-muted"></i></span>
+      </div>
+      {{ form.company_code }}
+    </div>
+    <small class="text-muted">Provided by your Director (e.g. ERP-OD-1001)</small>
+    {% if form.company_code.errors %}
+      <div class="invalid-feedback">{{ form.company_code.errors.0 }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Username -->
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Username <span class="text-danger">*</span></label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-user text-muted"></i></span>
+      </div>
+      {{ form.username }}
+    </div>
+    {% if form.username.errors %}
+      <div class="invalid-feedback">{{ form.username.errors.0 }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Email -->
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Email Address <span class="text-danger">*</span></label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-envelope text-muted"></i></span>
+      </div>
+      {{ form.email }}
+    </div>
+    {% if form.email.errors %}
+      <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Password -->
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Password <span class="text-danger">*</span></label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-lock text-muted"></i></span>
+      </div>
+      {{ form.password1 }}
+      <div class="input-group-append">
+        <span class="input-group-text" style="cursor:pointer;" onclick="togglePwd('id_password1', this)">
+          <i class="fas fa-eye text-muted"></i>
+        </span>
+      </div>
+    </div>
+    {% if form.password1.errors %}
+      <div class="invalid-feedback">{{ form.password1.errors.0 }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Confirm Password -->
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Confirm Password <span class="text-danger">*</span></label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-lock text-muted"></i></span>
+      </div>
+      {{ form.password2 }}
+    </div>
+    {% if form.password2.errors %}
+      <div class="invalid-feedback">{{ form.password2.errors.0 }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Non-field errors -->
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger py-2">
+      <small>{{ form.non_field_errors.0 }}</small>
+    </div>
+  {% endif %}
+
+  <button type="submit" class="btn btn-primary btn-block mt-3">
+    <i class="fas fa-user-plus mr-2"></i> Create Admin Account
+  </button>
+</form>
+{% endblock %}
+
+{% block auth_links %}
+<p>Already have an account? <a href="{% url 'accounts:login' %}">Sign In</a></p>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePwd(id, el) {
+  const input = document.getElementById(id);
+  const icon  = el.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.replace('fa-eye', 'fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.replace('fa-eye-slash', 'fa-eye');
+  }
+}
+</script>
+{% endblock %}

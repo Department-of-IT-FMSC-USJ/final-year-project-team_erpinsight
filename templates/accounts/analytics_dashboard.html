@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+{% block title %}Analytics Dashboard — ERPInsight{% endblock %}
+{% block page_title %}Analytics Dashboard{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:admin_dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active">Analytics</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.score-card { border-radius: 12px; padding: 25px; text-align: center; color: #fff; }
+.score-value { font-size: 2.5rem; font-weight: 700; }
+.score-label { font-size: 0.9rem; opacity: 0.9; }
+.diagnosis-item { border-left: 4px solid; padding: 12px 15px; margin-bottom: 10px; border-radius: 0 8px 8px 0; }
+.diagnosis-issue { border-color: #dc3545; background: #fff5f5; }
+.diagnosis-warning { border-color: #ffc107; background: #fffdf0; }
+.diagnosis-good { border-color: #28a745; background: #f0fff4; }
+.satisfaction-badge { font-size: 1rem; padding: 8px 20px; border-radius: 20px; }
+</style>
+{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item">
+  <a href="{% url 'accounts:admin_dashboard' %}" class="nav-link">
+    <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:business_processes' %}" class="nav-link">
+    <i class="nav-icon fas fa-sitemap"></i><p>Business Processes</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:employees' %}" class="nav-link">
+    <i class="nav-icon fas fa-users"></i><p>Employees</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:evaluation_questions' %}" class="nav-link">
+    <i class="nav-icon fas fa-question-circle"></i><p>Evaluation Questions</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:analytics_dashboard' %}" class="nav-link active">
+    <i class="nav-icon fas fa-chart-bar"></i><p>Analytics</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-file-pdf"></i><p>Reports</p>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+
+<!-- Process Selection -->
+<div class="row">
+  <div class="col-12">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-body">
+        <form method="get" action="{% url 'accounts:analytics_dashboard' %}">
+          <div class="row align-items-end">
+            <div class="col-md-4">
+              <label class="font-weight-bold"><i class="fas fa-sitemap mr-2" style="color:#7b1fa2;"></i>Select Process</label>
+              <select name="process" class="form-control" onchange="this.form.submit()">
+                <option value="">-- Select Process --</option>
+                {% for p in processes %}
+                <option value="{{ p.pk }}" {% if process_id == p.pk|stringformat:"s" %}selected{% endif %}>{{ p.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% if selected_process %}
+            <div class="col-md-4">
+              <label class="font-weight-bold"><i class="fas fa-exchange-alt mr-2" style="color:#7b1fa2;"></i>Compare With</label>
+              <select name="compare" class="form-control" onchange="this.form.submit()">
+                <option value="">-- Select to Compare --</option>
+                {% for p in processes %}
+                {% if p != selected_process %}
+                <option value="{{ p.pk }}" {% if compare_id == p.pk|stringformat:"s" %}selected{% endif %}>{{ p.name }}</option>
+                {% endif %}
+                {% endfor %}
+              </select>
+              <input type="hidden" name="process" value="{{ process_id }}">
+            </div>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if selected_process and analytics_data %}
+
+<div class="row mb-3">
+  <div class="col-12 text-right">
+    <a href="{% url 'accounts:download_report' %}?process={{ process_id }}{% if compare_id %}&compare={{ compare_id }}{% endif %}"
+       class="btn" style="background:#7b1fa2; color:#fff;">
+      <i class="fas fa-file-pdf mr-2"></i> Download PDF Report
+    </a>
+  </div>
+</div>
+
+<!-- Satisfaction Classification Header -->
+<div class="row">
+  <div class="col-12 text-center mb-2">
+    <span class="satisfaction-badge badge-{{ analytics_data.satisfaction_color }} badge">
+      {{ analytics_data.satisfaction_class }}
+    </span>
+    <small class="text-muted ml-3">
+      High: 4.0–5.0 &nbsp;|&nbsp; Moderate: 3.0–3.9 &nbsp;|&nbsp; Low: Below 3.0
+    </small>
+  </div>
+</div>
+
+<!-- Score Cards -->
+<div class="row">
+  <div class="col-md-4">
+    <div class="score-card" style="background: linear-gradient(135deg, #7b1fa2, #9c27b0);">
+      <div class="score-value">{{ analytics_data.overall_satisfaction }}<span style="font-size:1.2rem;">/5</span></div>
+      <div class="score-label">Overall Satisfaction Score</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="score-card" style="background: linear-gradient(135deg, #1565c0, #1976d2);">
+      <div class="score-value">{{ analytics_data.roi_score }}<span style="font-size:1.2rem;">/5</span></div>
+      <div class="score-label">Perceived ROI Score</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="score-card" style="background: linear-gradient(135deg, #2e7d32, #388e3c);">
+      <div class="score-value">{{ analytics_data.participant_count }}</div>
+      <div class="score-label">Participants</div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+
+  <!-- Category Chart -->
+  <div class="col-md-6">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-chart-radar mr-2" style="color:#7b1fa2;"></i>Category Scores</h3>
+      </div>
+      <div class="card-body">
+        <canvas id="categoryChart" height="250"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Diagnosis Section -->
+  <div class="col-md-6">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-stethoscope mr-2" style="color:#7b1fa2;"></i>Issue Diagnosis</h3>
+      </div>
+      <div class="card-body">
+        {% for item in analytics_data.diagnosis_issues %}
+        <div class="diagnosis-item {% if item.is_issue %}diagnosis-issue{% elif item.is_warning %}diagnosis-warning{% else %}diagnosis-good{% endif %}">
+          <div class="d-flex justify-content-between align-items-center">
+            <strong>
+              {% if item.is_issue %}
+                <i class="fas fa-exclamation-circle text-danger mr-2"></i>
+              {% elif item.is_warning %}
+                <i class="fas fa-exclamation-triangle text-warning mr-2"></i>
+              {% else %}
+                <i class="fas fa-check-circle text-success mr-2"></i>
+              {% endif %}
+              {{ item.tag }}
+            </strong>
+            <span class="badge {% if item.is_issue %}badge-danger{% elif item.is_warning %}badge-warning{% else %}badge-success{% endif %}">
+              {{ item.score }}/5
+            </span>
+          </div>
+          {% if item.is_issue or item.is_warning %}
+          <small class="text-muted mt-1 d-block">{{ item.message }}</small>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Process Comparison -->
+{% if compare_process and compare_data %}
+<div class="row mt-2">
+  <div class="col-12">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-exchange-alt mr-2" style="color:#7b1fa2;"></i>Process Comparison</h3>
+      </div>
+      <div class="card-body">
+        <canvas id="comparisonChart" height="100"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Employee Feedback -->
+{% if analytics_data.feedbacks %}
+<div class="row mt-2">
+  <div class="col-12">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-comments mr-2" style="color:#7b1fa2;"></i>Employee Feedback</h3>
+      </div>
+      <div class="card-body">
+        {% for fb in analytics_data.feedbacks %}
+        <div class="callout callout-info">
+          <small class="text-muted">{{ fb.category|capfirst }} — {{ fb.submitted_at|date:"d M Y" }}</small>
+          <p class="mb-0">{{ fb.feedback_text }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% elif selected_process and not analytics_data %}
+<div class="row mt-3">
+  <div class="col-12">
+    <div class="card text-center py-5">
+      <div class="card-body text-muted">
+        <i class="fas fa-chart-bar fa-3x mb-3 text-light"></i>
+        <p>No evaluation data yet for <strong>{{ selected_process.name }}</strong>.<br>
+        Employees need to complete their evaluations first.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="row mt-3">
+  <div class="col-12">
+    <div class="card text-center py-5">
+      <div class="card-body text-muted">
+        <i class="fas fa-chart-bar fa-3x mb-3 text-light"></i>
+        <p>Please select a business process to view analytics.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+{% if analytics_data %}
+<script>
+// Category Radar Chart
+const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+new Chart(ctxCategory, {
+  type: 'radar',
+  data: {
+    labels: {{ analytics_data.category_labels|safe }},
+    datasets: [{
+      label: '{{ selected_process.name }}',
+      data: {{ analytics_data.category_values|safe }},
+      backgroundColor: 'rgba(123, 31, 162, 0.2)',
+      borderColor: '#7b1fa2',
+      pointBackgroundColor: '#7b1fa2',
+      borderWidth: 2,
+    }]
+  },
+  options: {
+    scales: {
+      r: {
+        beginAtZero: true,
+        max: 5,
+        ticks: { stepSize: 1 }
+      }
+    }
+  }
+});
+
+{% if compare_data %}
+// Comparison Bar Chart
+const ctxCompare = document.getElementById('comparisonChart').getContext('2d');
+new Chart(ctxCompare, {
+  type: 'bar',
+  data: {
+    labels: ['Satisfaction', 'ROI Score', 'System Quality', 'Information Quality', 'Process Efficiency', 'User Satisfaction', 'Perceived ROI'],
+    datasets: [
+      {
+        label: '{{ selected_process.name }}',
+        data: [
+          {{ analytics_data.overall_satisfaction }},
+          {{ analytics_data.roi_score }},
+          {% for k, v in analytics_data.category_scores.items %}{{ v }}{% if not forloop.last %},{% endif %}{% endfor %}
+        ],
+        backgroundColor: 'rgba(123, 31, 162, 0.7)',
+        borderColor: '#7b1fa2',
+        borderWidth: 1,
+      },
+      {
+        label: '{{ compare_process.name }}',
+        data: [
+          {{ compare_data.overall_satisfaction }},
+          {{ compare_data.roi_score }},
+          {% for k, v in compare_data.category_scores.items %}{{ v }}{% if not forloop.last %},{% endif %}{% endfor %}
+        ],
+        backgroundColor: 'rgba(21, 101, 192, 0.7)',
+        borderColor: '#1565c0',
+        borderWidth: 1,
+      }
+    ]
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 5,
+        ticks: { stepSize: 1 }
+      }
+    }
+  }
+});
+{% endif %}
+</script>
+{% endif %}
+{% endblock %}

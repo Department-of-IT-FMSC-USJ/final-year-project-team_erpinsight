@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Evaluation — ERPInsight{% endblock %}
+{% block page_title %}Process Evaluation{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:employee_dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active">Evaluation</li>
+{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item">
+  <a href="{% url 'accounts:employee_dashboard' %}" class="nav-link">
+    <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:employee_evaluation' %}" class="nav-link active">
+    <i class="nav-icon fas fa-clipboard-list"></i><p>My Evaluation</p>
+  </a>
+</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.likert-scale { display: flex; justify-content: space-between; margin: 10px 0; }
+.likert-option { display: flex; flex-direction: column; align-items: center; flex: 1; }
+.likert-option input[type="radio"] { width: 20px; height: 20px; cursor: pointer; accent-color: #7b1fa2; }
+.likert-option label { font-size: 0.75rem; color: #666; margin-top: 4px; text-align: center; }
+.likert-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.likert-header span { flex: 1; text-align: center; font-weight: 600; font-size: 0.8rem; color: #7b1fa2; }
+.question-card { background: #f8f9fa; border-left: 4px solid #7b1fa2; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+.question-text { font-weight: 500; margin-bottom: 10px; }
+.category-feedback { background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; border-radius: 5px; margin-top: 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="callout callout-info">
+      <h5><i class="fas fa-sitemap mr-2"></i>{{ assigned_process.name }}</h5>
+      <p>Please rate each statement based on your experience with the ERP system. All questions are required. Category feedback is optional.</p>
+    </div>
+  </div>
+</div>
+
+<form method="post" action="{% url 'accounts:employee_evaluation' %}">
+  {% csrf_token %}
+
+  {% for category, questions in questions_by_category.items %}
+  <div class="row">
+    <div class="col-12">
+      <div class="card card-outline shadow mb-3" style="border-top: 4px solid #7b1fa2;">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-tag mr-2" style="color:#7b1fa2;"></i>{{ category }}
+            <span class="badge ml-2" style="background:#7b1fa2; color:#fff;">{{ questions|length }} Questions</span>
+          </h3>
+        </div>
+        <div class="card-body">
+
+          {% for q in questions %}
+          <div class="question-card">
+            <div class="question-text">
+              <span class="text-muted mr-2">Q{{ forloop.counter }}.</span>{{ q.question_text }}
+            </div>
+
+            <!-- Likert Scale Header -->
+            <div class="likert-header">
+              <span>Strongly<br>Disagree</span>
+              <span>Disagree</span>
+              <span>Neutral</span>
+              <span>Agree</span>
+              <span>Strongly<br>Agree</span>
+            </div>
+
+            <!-- Likert Scale Options -->
+            <div class="likert-scale">
+              {% for i in "12345" %}
+              <div class="likert-option">
+                <input type="radio" name="question_{{ q.pk }}" value="{{ i }}" required
+                       id="q{{ q.pk }}_{{ i }}">
+                <label for="q{{ q.pk }}_{{ i }}">{{ i }}</label>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+
+          <!-- Optional Category Feedback -->
+          <div class="category-feedback mt-3">
+            <label class="font-weight-bold">
+              <i class="fas fa-comment mr-2" style="color:#ff9800;"></i>
+              {{ category }} Feedback <span class="text-muted font-weight-normal">(Optional)</span>
+            </label>
+            <textarea name="feedback_{{ category|lower|cut:' ' }}"
+                      class="form-control mt-2"
+                      rows="2"
+                      placeholder="Any comments about {{ category }}?"></textarea>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  <!-- Submit Button -->
+  <div class="row">
+    <div class="col-12 text-center mb-4">
+      <button type="submit" class="btn btn-lg px-5" style="background:#7b1fa2; color:#fff;"
+              onclick="return confirm('Are you sure you want to submit your evaluation? This cannot be changed.')">
+        <i class="fas fa-paper-plane mr-2"></i> Submit Evaluation
+      </button>
+    </div>
+  </div>
+
+</form>
+{% endblock %}

@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block title %}Evaluation Questions — ERPInsight{% endblock %}
+{% block page_title %}Evaluation Questions{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:admin_dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active">Evaluation Questions</li>
+{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item">
+  <a href="{% url 'accounts:admin_dashboard' %}" class="nav-link">
+    <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:business_processes' %}" class="nav-link">
+    <i class="nav-icon fas fa-sitemap"></i><p>Business Processes</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:employees' %}" class="nav-link">
+    <i class="nav-icon fas fa-users"></i><p>Employees</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:evaluation_questions' %}" class="nav-link active">
+    <i class="nav-icon fas fa-question-circle"></i><p>Evaluation Questions</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-chart-bar"></i><p>Analytics</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-file-pdf"></i><p>Reports</p>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+
+<!-- Process Selection -->
+<div class="row">
+  <div class="col-12">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-body">
+        <form method="get" action="{% url 'accounts:evaluation_questions' %}">
+          <div class="row align-items-end">
+            <div class="col-md-6">
+              <label class="font-weight-bold"><i class="fas fa-sitemap mr-2" style="color:#7b1fa2;"></i>Select Business Process</label>
+              <select name="process" class="form-control" onchange="this.form.submit()">
+                <option value="">-- Select a Process --</option>
+                {% for process in processes %}
+                <option value="{{ process.pk }}" {% if process_id == process.pk|stringformat:"s" %}selected{% endif %}>
+                  {{ process.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            {% if selected_process %}
+            <div class="col-md-6">
+              <div class="alert alert-info mb-0 py-2">
+                <i class="fas fa-info-circle mr-2"></i>
+                Showing questions for <strong>{{ selected_process.name }}</strong>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if selected_process %}
+
+<!-- Add Custom Question -->
+<div class="row">
+  <div class="col-12">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-plus mr-2" style="color:#7b1fa2;"></i>Add Custom Question</h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="collapse">
+            <i class="fas fa-minus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'accounts:add_custom_question' %}">
+          {% csrf_token %}
+          <input type="hidden" name="process_id" value="{{ selected_process.pk }}">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label class="font-weight-bold">Category <span class="text-danger">*</span></label>
+                <select name="category" class="form-control" required>
+                  <option value="">-- Select --</option>
+                  <option value="system_quality">System Quality</option>
+                  <option value="information_quality">Information Quality</option>
+                  <option value="process_efficiency">Process Efficiency</option>
+                  <option value="user_satisfaction">User Satisfaction</option>
+                  <option value="perceived_roi">Perceived ROI</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="form-group">
+                <label class="font-weight-bold">Question Text <span class="text-danger">*</span></label>
+                <input type="text" name="question_text" class="form-control" placeholder="Enter your custom question..." required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="font-weight-bold">Diagnosis Tag <span class="text-danger">*</span></label>
+                <input type="text" name="diagnosis_tag" class="form-control" placeholder="e.g. Approval Speed" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="font-weight-bold">Diagnosis Message <span class="text-danger">*</span></label>
+                <input type="text" name="diagnosis_message" class="form-control" placeholder="e.g. Approvals are taking too long..." required>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn" style="background:#7b1fa2; color:#fff;">
+            <i class="fas fa-plus mr-2"></i> Add Custom Question
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Questions by Category -->
+{% for category, questions in questions_by_category.items %}
+<div class="row">
+  <div class="col-12">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fas fa-tag mr-2" style="color:#7b1fa2;"></i>{{ category }}
+          <span class="badge ml-2" style="background:#7b1fa2; color:#fff;">{{ questions|length }} Questions</span>
+        </h3>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead style="background:#f8f9fa;">
+            <tr>
+              <th>#</th>
+              <th>Question</th>
+              <th>Diagnosis Tag</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for q in questions %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ q.question_text }}</td>
+              <td><span class="badge badge-warning p-1">{{ q.diagnosis_tag }}</span></td>
+              <td>
+                {% if q.question_type == 'custom' %}
+                  <span class="badge badge-info">Custom</span>
+                {% else %}
+                  <span class="badge badge-secondary">Predefined</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if q.is_active %}
+                  <span class="badge badge-success p-1">Active</span>
+                {% else %}
+                  <span class="badge badge-danger p-1">Disabled</span>
+                {% endif %}
+              </td>
+              <td>
+                <!-- Toggle active/inactive -->
+                <form method="post" action="{% url 'accounts:toggle_question' q.pk %}" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="process_id" value="{{ selected_process.pk }}">
+                  {% if q.is_active %}
+                  <button type="submit" class="btn btn-sm btn-outline-warning">
+                    <i class="fas fa-ban"></i> Disable
+                  </button>
+                  {% else %}
+                  <button type="submit" class="btn btn-sm btn-outline-success">
+                    <i class="fas fa-check"></i> Enable
+                  </button>
+                  {% endif %}
+                </form>
+                <!-- Delete custom only -->
+                {% if q.question_type == 'custom' %}
+                <form method="post" action="{% url 'accounts:delete_custom_question' q.pk %}" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="process_id" value="{{ selected_process.pk }}">
+                  <button type="submit" class="btn btn-sm btn-outline-danger"
+                          onclick="return confirm('Delete this question?')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="row">
+  <div class="col-12">
+    <div class="card text-center py-5">
+      <div class="card-body text-muted">
+        <i class="fas fa-question-circle fa-3x mb-3 text-light"></i>
+        <p>Please select a business process above to view and manage its evaluation questions.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

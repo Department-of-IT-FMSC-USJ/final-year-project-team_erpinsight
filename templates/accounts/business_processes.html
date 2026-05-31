@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Business Processes — ERPInsight{% endblock %}
+{% block page_title %}Business Processes{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:admin_dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active">Business Processes</li>
+{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item">
+  <a href="{% url 'accounts:admin_dashboard' %}" class="nav-link">
+    <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:business_processes' %}" class="nav-link active">
+    <i class="nav-icon fas fa-sitemap"></i><p>Business Processes</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-users"></i><p>Employees</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-question-circle"></i><p>Evaluation Questions</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-chart-bar"></i><p>Analytics</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-file-pdf"></i><p>Reports</p>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+
+  <!-- Add Process Card -->
+  <div class="col-md-4">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-plus mr-2" style="color:#7b1fa2;"></i>Add Business Process</h3>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'accounts:add_business_process' %}">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label class="font-weight-bold">Process Type <span class="text-danger">*</span></label>
+            <select name="process_type" class="form-control" id="processTypeSelect" onchange="toggleCustomName(this)">
+              <option value="">-- Select Type --</option>
+              <option value="procure_to_pay">Procure-to-Pay</option>
+              <option value="order_to_cash">Order-to-Cash</option>
+              <option value="inventory_fulfillment">Inventory Fulfillment</option>
+              <option value="employee_management">Employee Management</option>
+              <option value="custom">Custom (type your own)</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="customNameGroup" style="display:none;">
+            <label class="font-weight-bold">Custom Process Name <span class="text-danger">*</span></label>
+            <input type="text" name="name" id="customName" class="form-control" placeholder="e.g. Returns Management">
+          </div>
+
+          <div class="form-group">
+            <label class="font-weight-bold">Description</label>
+            <textarea name="description" class="form-control" rows="3" placeholder="Optional description..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-block" style="background:#7b1fa2; color:#fff;">
+            <i class="fas fa-plus mr-2"></i> Add Process
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Process List -->
+  <div class="col-md-8">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-sitemap mr-2" style="color:#7b1fa2;"></i>Defined Processes</h3>
+        <div class="card-tools">
+          <span class="badge badge-lg" style="background:#7b1fa2; color:#fff; font-size:0.85rem;">
+            {{ processes.count }} Process{{ processes.count|pluralize }}
+          </span>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        {% if processes %}
+        <table class="table table-hover mb-0">
+          <thead style="background:#f8f9fa;">
+            <tr>
+              <th>#</th>
+              <th>Process Name</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for process in processes %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td><strong>{{ process.name }}</strong></td>
+              <td>
+                <span class="badge badge-info">{{ process.get_process_type_display }}</span>
+              </td>
+              <td>{{ process.description|default:"—"|truncatechars:40 }}</td>
+              <td>
+                {% if process.is_active %}
+                  <span class="badge badge-success">Active</span>
+                {% else %}
+                  <span class="badge badge-secondary">Inactive</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'accounts:edit_business_process' process.pk %}" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'accounts:delete_business_process' process.pk %}"
+                   class="btn btn-sm btn-outline-danger"
+                   onclick="return confirm('Delete {{ process.name }}?')">
+                  <i class="fas fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+          <i class="fas fa-sitemap fa-3x mb-3 text-light"></i>
+          <p>No business processes defined yet.<br>Add your first process using the form.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleCustomName(select) {
+  const customGroup = document.getElementById('customNameGroup');
+  const customInput = document.getElementById('customName');
+  if (select.value === 'custom') {
+    customGroup.style.display = 'block';
+    customInput.required = true;
+  } else {
+    customGroup.style.display = 'none';
+    customInput.required = false;
+  }
+}
+</script>
+{% endblock %}

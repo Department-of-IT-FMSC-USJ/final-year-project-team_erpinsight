@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ERPInsight{% endblock %}</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css">
+
+  <style>
+     body.login-page { background: linear-gradient(135deg, #6a1b9a 0%, #4a148c 60%, #9c27b0 100%); }
+    .login-box { width: 400px; }
+    .login-logo a { color: #fff !important; }
+    .login-logo small { display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; letter-spacing: 2px; font-weight: 300; }
+    .card { border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); border: none; }
+    .card-header { background: #7b1fa2; border-radius: 12px 12px 0 0 !important; padding: 20px 25px; }
+    .card-header h4 { color: #fff; margin: 0; font-weight: 600; }
+    .card-header p  { color: rgba(255,255,255,0.7); margin: 4px 0 0; font-size: 0.85rem; }
+    .card-body { padding: 30px 25px; }
+    .input-group-text { background: #f8f9fa; border-right: none; }
+    .form-control { border-left: none; }
+    .form-control:focus { box-shadow: none; border-color: #ced4da; }
+    .input-group:focus-within .input-group-text,
+    .input-group:focus-within .form-control { border-color: #2196F3; }
+    .btn-primary { background: #7b1fa2; border-color: #7b1fa2; font-weight: 600; letter-spacing: 0.5px; padding: 10px; }
+    .btn-primary:hover { background: #9c27b0; border-color: #9c27b0; }
+    .auth-links a { color: rgba(255,255,255,0.8); font-size: 0.875rem; }
+    .auth-links a:hover { color: #fff; }
+    .invalid-feedback { display: block; }
+  </style>
+</head>
+<body class="hold-transition login-page">
+
+<div class="login-box">
+  <div class="login-logo mb-3">
+    <a href="#">
+      <i class="fas fa-chart-line mr-2" style="color:#ce93d8; font-size:1.8rem;"></i>
+      <strong style="font-size:1.8rem;">ERP</strong>Insight
+      <small>Business Process Evaluation System</small>
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h4><i class="{% block header_icon %}fas fa-sign-in-alt{% endblock %} mr-2"></i> {% block card_title %}Sign In{% endblock %}</h4>
+      <p>{% block card_subtitle %}Sign in to your account{% endblock %}</p>
+    </div>
+    <div class="card-body">
+
+      {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show py-2">
+          <small>{{ message }}</small>
+          <button type="button" class="close py-2" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block form_content %}{% endblock %}
+
+    </div>
+  </div>
+
+  <div class="auth-links text-center mt-3">
+    {% block auth_links %}{% endblock %}
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+{% extends "auth_base.html" %}
+
+{% block title %}Login — ERPInsight{% endblock %}
+{% block card_title %}Sign In{% endblock %}
+{% block card_subtitle %}Enter your credentials to continue{% endblock %}
+
+{% block form_content %}
+<form method="post" action="{% url 'accounts:login' %}">
+  {% csrf_token %}
+
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Email Address</label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-envelope text-muted"></i></span>
+      </div>
+      {{ form.username }}
+    </div>
+    {% if form.username.errors %}
+      <div class="invalid-feedback">{{ form.username.errors.0 }}</div>
+    {% endif %}
+  </div>
+
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Password</label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-lock text-muted"></i></span>
+      </div>
+      {{ form.password }}
+      <div class="input-group-append">
+        <span class="input-group-text" style="cursor:pointer;" onclick="togglePwd('id_password', this)">
+          <i class="fas fa-eye text-muted"></i>
+        </span>
+      </div>
+    </div>
+    {% if form.password.errors %}
+      <div class="invalid-feedback">{{ form.password.errors.0 }}</div>
+    {% endif %}
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary btn-block">
+        <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+      </button>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block auth_links %}
+<p>Are you a <strong>Manager</strong>?
+  <a href="{% url 'accounts:admin_signup' %}">Create Manager Account</a>
+</p>
+<p>Are you an <strong>Employee</strong>?
+  <a href="{% url 'accounts:employee_signup' %}">Create Employee Account</a>
+</p>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePwd(id, el) {
+  const input = document.getElementById(id);
+  const icon  = el.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.replace('fa-eye', 'fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.replace('fa-eye-slash', 'fa-eye');
+  }
+}
+</script>
+{% endblock %}

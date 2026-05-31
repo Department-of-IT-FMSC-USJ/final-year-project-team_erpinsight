@@ -1,0 +1,104 @@
+{% extends "auth_base.html" %}
+
+{% block title %}Employee Sign Up — ERPInsight{% endblock %}
+{% block header_icon %}fas fa-user{% endblock %}
+{% block card_title %}Employee Registration{% endblock %}
+{% block card_subtitle %}Your email must be registered by your Manager first{% endblock %}
+
+{% block form_content %}
+<form method="post" action="{% url 'accounts:employee_signup' %}">
+  {% csrf_token %}
+
+  <!-- Email -->
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Work Email <span class="text-danger">*</span></label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-envelope text-muted"></i></span>
+      </div>
+      {{ form.email }}
+    </div>
+    <small class="text-muted">Must match the email your Manager registered for you</small>
+    {% if form.email.errors %}
+      <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Username -->
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Username <span class="text-danger">*</span></label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-user text-muted"></i></span>
+      </div>
+      {{ form.username }}
+    </div>
+    {% if form.username.errors %}
+      <div class="invalid-feedback">{{ form.username.errors.0 }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Password -->
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Password <span class="text-danger">*</span></label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-lock text-muted"></i></span>
+      </div>
+      {{ form.password1 }}
+      <div class="input-group-append">
+        <span class="input-group-text" style="cursor:pointer;" onclick="togglePwd('id_password1', this)">
+          <i class="fas fa-eye text-muted"></i>
+        </span>
+      </div>
+    </div>
+    {% if form.password1.errors %}
+      <div class="invalid-feedback">{{ form.password1.errors.0 }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Confirm Password -->
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Confirm Password <span class="text-danger">*</span></label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-lock text-muted"></i></span>
+      </div>
+      {{ form.password2 }}
+    </div>
+    {% if form.password2.errors %}
+      <div class="invalid-feedback">{{ form.password2.errors.0 }}</div>
+    {% endif %}
+  </div>
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger py-2">
+      <small>{{ form.non_field_errors.0 }}</small>
+    </div>
+  {% endif %}
+
+  <button type="submit" class="btn btn-primary btn-block mt-3">
+    <i class="fas fa-user-plus mr-2"></i> Create Employee Account
+  </button>
+</form>
+{% endblock %}
+
+{% block auth_links %}
+<p>Already have an account? <a href="{% url 'accounts:login' %}">Sign In</a></p>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePwd(id, el) {
+  const input = document.getElementById(id);
+  const icon  = el.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.replace('fa-eye', 'fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.replace('fa-eye-slash', 'fa-eye');
+  }
+}
+</script>
+{% endblock %}

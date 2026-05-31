@@ -1,0 +1,88 @@
+{% extends "auth_base.html" %}
+
+{% block title %}Create Your Account — ERPInsight{% endblock %}
+{% block header_icon %}fas fa-user-plus{% endblock %}
+{% block card_title %}Create Your Account{% endblock %}
+{% block card_subtitle %}You have been invited to join ERPInsight{% endblock %}
+
+{% block form_content %}
+<div class="alert alert-info py-2 mb-3">
+  <small>
+    <i class="fas fa-envelope mr-1"></i> <strong>{{ invitation.email }}</strong><br>
+    <i class="fas fa-sitemap mr-1"></i> Process: <strong>{{ invitation.business_process }}</strong>
+  </small>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Email Address</label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-envelope text-muted"></i></span>
+      </div>
+      <input type="email" class="form-control" value="{{ invitation.email }}" readonly style="background:#f8f9fa;">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Username <span class="text-danger">*</span></label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-user text-muted"></i></span>
+      </div>
+      <input type="text" name="username" class="form-control" placeholder="Choose a username" required>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Password <span class="text-danger">*</span></label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-lock text-muted"></i></span>
+      </div>
+      <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Password" required>
+      <div class="input-group-append">
+        <span class="input-group-text" style="cursor:pointer;" onclick="togglePwd('id_password1', this)">
+          <i class="fas fa-eye text-muted"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="text-muted small font-weight-bold">Confirm Password <span class="text-danger">*</span></label>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-lock text-muted"></i></span>
+      </div>
+      <input type="password" name="password2" class="form-control" placeholder="Confirm Password" required>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary btn-block mt-3">
+    <i class="fas fa-user-plus mr-2"></i> Create Account
+  </button>
+</form>
+{% endblock %}
+
+{% block auth_links %}
+<p>Already have an account? <a href="{% url 'accounts:login' %}">Sign In</a></p>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePwd(id, el) {
+  const input = document.getElementById(id);
+  const icon = el.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.replace('fa-eye', 'fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.replace('fa-eye-slash', 'fa-eye');
+  }
+}
+</script>
+{% endblock %}

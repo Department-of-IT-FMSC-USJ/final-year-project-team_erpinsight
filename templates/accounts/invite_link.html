@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Invite Link — ERPInsight{% endblock %}
+{% block page_title %}Invitation Link Generated{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:admin_dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item"><a href="{% url 'accounts:employees' %}">Employees</a></li>
+<li class="breadcrumb-item active">Invite Link</li>
+{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item">
+  <a href="{% url 'accounts:admin_dashboard' %}" class="nav-link">
+    <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:business_processes' %}" class="nav-link">
+    <i class="nav-icon fas fa-sitemap"></i><p>Business Processes</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:employees' %}" class="nav-link active">
+    <i class="nav-icon fas fa-users"></i><p>Employees</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-question-circle"></i><p>Evaluation Questions</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-chart-bar"></i><p>Analytics</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-file-pdf"></i><p>Reports</p>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-body text-center py-4">
+
+        <i class="fas fa-check-circle fa-4x mb-3" style="color:#7b1fa2;"></i>
+        <h4 class="font-weight-bold">Invitation Link Generated!</h4>
+        <p class="text-muted">Share this link with the employee via WhatsApp or any other way.</p>
+
+        <div class="row justify-content-center mb-3">
+          <div class="col-md-8">
+            <table class="table table-bordered text-left">
+              <tr><th>Employee Email</th><td>{{ email }}</td></tr>
+              <tr><th>Assigned Process</th><td>{{ process }}</td></tr>
+              <tr><th>Link Expires</th><td>{{ expires_at|date:"d M Y, h:i A" }}</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="input-group mb-3 mx-auto" style="max-width:600px;">
+          <input type="text" id="inviteLink" class="form-control" value="{{ invite_link }}" readonly>
+          <div class="input-group-append">
+            <button class="btn" style="background:#7b1fa2; color:#fff;" onclick="copyLink()">
+              <i class="fas fa-copy mr-1"></i> Copy Link
+            </button>
+          </div>
+        </div>
+
+        <div id="copyMsg" class="text-success mb-3" style="display:none;">
+          <i class="fas fa-check mr-1"></i> Link copied to clipboard!
+        </div>
+
+        <a href="{% url 'accounts:employees' %}" class="btn btn-secondary mt-2">
+          <i class="fas fa-arrow-left mr-2"></i> Back to Employees
+        </a>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyLink() {
+  const linkInput = document.getElementById('inviteLink');
+  linkInput.select();
+  document.execCommand('copy');
+  document.getElementById('copyMsg').style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('copyMsg').style.display = 'none';
+  }, 3000);
+}
+</script>
+{% endblock %}

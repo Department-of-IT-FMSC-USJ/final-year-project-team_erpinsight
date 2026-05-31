@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Employee Dashboard — ERPInsight{% endblock %}
+{% block page_title %}My Evaluation{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item">
+  <a href="{% url 'accounts:employee_dashboard' %}" class="nav-link active">
+    <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:employee_evaluation' %}" class="nav-link">
+    <i class="nav-icon fas fa-clipboard-list"></i><p>My Evaluation</p>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-body text-center py-4">
+        <i class="fas fa-sitemap fa-3x mb-3" style="color:#7b1fa2;"></i>
+        <h5 class="font-weight-bold">Assigned Business Process</h5>
+        {% if assigned_process %}
+          <h4 class="text-primary mt-2">{{ assigned_process.name }}</h4>
+          <p class="text-muted">{{ assigned_process.description|default:"" }}</p>
+        {% else %}
+          <p class="text-muted">No process assigned yet. Contact your Manager.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-body text-center py-4">
+        {% if has_submitted %}
+          <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+          <h5 class="font-weight-bold">Evaluation Submitted</h5>
+          <p class="text-muted">Thank you for completing your evaluation!</p>
+          <span class="badge badge-success p-2">Completed</span>
+        {% else %}
+          <i class="fas fa-clock fa-3x mb-3 text-warning"></i>
+          <h5 class="font-weight-bold">Evaluation Pending</h5>
+          <p class="text-muted">You have not submitted your evaluation yet.</p>
+          {% if assigned_process %}
+          <a href="{% url 'accounts:employee_evaluation' %}" class="btn mt-2" style="background:#7b1fa2; color:#fff;">
+            <i class="fas fa-play mr-2"></i> Start Evaluation
+          </a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Employees — ERPInsight{% endblock %}
+{% block page_title %}Employee Management{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:admin_dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active">Employees</li>
+{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item">
+  <a href="{% url 'accounts:admin_dashboard' %}" class="nav-link">
+    <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:business_processes' %}" class="nav-link">
+    <i class="nav-icon fas fa-sitemap"></i><p>Business Processes</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:employees' %}" class="nav-link active">
+    <i class="nav-icon fas fa-users"></i><p>Employees</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-question-circle"></i><p>Evaluation Questions</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-chart-bar"></i><p>Analytics</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-file-pdf"></i><p>Reports</p>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+
+  <div class="col-md-4">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-user-plus mr-2" style="color:#7b1fa2;"></i>Register Employee</h3>
+      </div>
+      <div class="card-body">
+        {% if processes %}
+        <form method="post" action="{% url 'accounts:add_employee' %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label class="font-weight-bold">Employee Email <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              </div>
+              <input type="email" name="email" class="form-control" placeholder="employee@company.com" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="font-weight-bold">Assign Business Process <span class="text-danger">*</span></label>
+            <select name="process" class="form-control" required>
+              <option value="">-- Select Process --</option>
+              {% for process in processes %}
+              <option value="{{ process.pk }}">{{ process.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-block" style="background:#7b1fa2; color:#fff;">
+            <i class="fas fa-user-plus mr-2"></i> Register Employee
+          </button>
+        </form>
+        {% else %}
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle mr-2"></i>
+          No active business processes found. Please
+          <a href="{% url 'accounts:business_processes' %}">add a business process</a> first.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-users mr-2" style="color:#7b1fa2;"></i>Registered Employees</h3>
+        <div class="card-tools">
+          <span class="badge badge-lg" style="background:#7b1fa2; color:#fff; font-size:0.85rem;">
+            {{ registered_employees.count }} Employee{{ registered_employees.count|pluralize }}
+          </span>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        {% if registered_employees %}
+        <table class="table table-hover mb-0">
+          <thead style="background:#f8f9fa;">
+            <tr>
+              <th>#</th>
+              <th>Email</th>
+              <th>Assigned Process</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for emp in registered_employees %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td><i class="fas fa-envelope mr-2 text-muted"></i>{{ emp.email }}</td>
+              <td>
+                <span class="badge badge-info p-2">{{ emp.business_process }}</span>
+              </td>
+              <td>
+                {% if emp.is_registered %}
+                  <span class="badge badge-success p-2">Signed Up</span>
+                {% else %}
+                  <span class="badge badge-warning p-2">Pending</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'accounts:delete_employee' emp.pk %}"
+                   class="btn btn-sm btn-outline-danger"
+                   onclick="return confirm('Remove {{ emp.email }}?')">
+                  <i class="fas fa-trash"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+          <i class="fas fa-users fa-3x mb-3 text-light"></i>
+          <p>No employees registered yet.<br>Add employee emails using the form.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

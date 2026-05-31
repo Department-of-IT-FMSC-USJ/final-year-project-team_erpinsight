@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Edit Process — ERPInsight{% endblock %}
+{% block page_title %}Edit Business Process{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:admin_dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item"><a href="{% url 'accounts:business_processes' %}">Business Processes</a></li>
+<li class="breadcrumb-item active">Edit</li>
+{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item">
+  <a href="{% url 'accounts:admin_dashboard' %}" class="nav-link">
+    <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:business_processes' %}" class="nav-link active">
+    <i class="nav-icon fas fa-sitemap"></i><p>Business Processes</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-users"></i><p>Employees</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-question-circle"></i><p>Evaluation Questions</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-chart-bar"></i><p>Analytics</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="#" class="nav-link">
+    <i class="nav-icon fas fa-file-pdf"></i><p>Reports</p>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-edit mr-2" style="color:#7b1fa2;"></i>Edit — {{ process.name }}</h3>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label class="font-weight-bold">Process Name <span class="text-danger">*</span></label>
+            <input type="text" name="name" class="form-control" value="{{ process.name }}" required>
+          </div>
+          <div class="form-group">
+            <label class="font-weight-bold">Description</label>
+            <textarea name="description" class="form-control" rows="3">{{ process.description|default:'' }}</textarea>
+          </div>
+          <div class="form-group">
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="is_active" name="is_active"
+                     {% if process.is_active %}checked{% endif %}>
+              <label class="custom-control-label font-weight-bold" for="is_active">Active</label>
+            </div>
+            <small class="text-muted">Inactive processes won't appear in employee evaluations</small>
+          </div>
+          <div class="row mt-3">
+            <div class="col-6">
+              <button type="submit" class="btn btn-block" style="background:#7b1fa2; color:#fff;">
+                <i class="fas fa-save mr-2"></i> Save Changes
+              </button>
+            </div>
+            <div class="col-6">
+              <a href="{% url 'accounts:business_processes' %}" class="btn btn-secondary btn-block">
+                <i class="fas fa-times mr-2"></i> Cancel
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Evaluation Submitted — ERPInsight{% endblock %}
+{% block page_title %}Evaluation Submitted{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item">
+  <a href="{% url 'accounts:employee_dashboard' %}" class="nav-link">
+    <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:employee_evaluation' %}" class="nav-link">
+    <i class="nav-icon fas fa-clipboard-list"></i><p>My Evaluation</p>
+  </a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card card-outline shadow text-center" style="border-top: 4px solid #7b1fa2;">
+      <div class="card-body py-5">
+        <i class="fas fa-check-circle fa-5x mb-4" style="color:#7b1fa2;"></i>
+        <h3 class="font-weight-bold">Thank You!</h3>
+        <p class="text-muted lead">Your evaluation has been submitted successfully.</p>
+        <hr>
+        <p class="text-muted">Your responses will help the organization identify areas for improvement in ERP-supported business processes.</p>
+        <a href="{% url 'accounts:employee_dashboard' %}" class="btn mt-3" style="background:#7b1fa2; color:#fff; padding: 10px 30px;">
+          <i class="fas fa-home mr-2"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — ERPInsight{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item">
+  <a href="{% url 'accounts:admin_dashboard' %}" class="nav-link active">
+    <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:business_processes' %}" class="nav-link">
+    <i class="nav-icon fas fa-sitemap"></i><p>Business Processes</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:employees' %}" class="nav-link">
+    <i class="nav-icon fas fa-users"></i><p>Employees</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:evaluation_questions' %}" class="nav-link">
+    <i class="nav-icon fas fa-question-circle"></i><p>Evaluation Questions</p>
+  </a>
+</li>
+<li class="nav-item">
+  <a href="{% url 'accounts:analytics_dashboard' %}" class="nav-link">
+    <i class="nav-icon fas fa-chart-bar"></i><p>Analytics</p>
+  </a>
+</li>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="callout callout-success">
+      <h5><i class="fas fa-check-circle mr-2"></i>Welcome, {{ request.user.username }}</h5>
+      <p>Company: <strong>{{ request.user.company.name }}</strong> &nbsp;|&nbsp;
+         Code: <code>{{ request.user.company.company_code }}</code></p>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-info">
+      <div class="inner"><h3>{{ process_count }}</h3><p>Business Processes</p></div>
+      <div class="icon"><i class="fas fa-sitemap"></i></div>
+      <a href="{% url 'accounts:business_processes' %}" class="small-box-footer">Manage <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-success">
+      <div class="inner"><h3>{{ employee_count }}</h3><p>Registered Employees</p></div>
+      <div class="icon"><i class="fas fa-users"></i></div>
+      <a href="{% url 'accounts:employees' %}" class="small-box-footer">View <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-warning">
+      <div class="inner"><h3>{{ eval_count }}</h3><p>Evaluations Questions</p></div>
+      <div class="icon"><i class="fas fa-clipboard-check"></i></div>
+      <a href="{% url 'accounts:evaluation_questions' %}" class="small-box-footer">Details <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-danger">
+      <div class="inner"><h3>—</h3><p>Avg. Satisfaction</p></div>
+      <div class="icon"><i class="fas fa-star"></i></div>
+      <a href="{% url 'accounts:analytics_dashboard' %}" class="small-box-footer">Analytics <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+  <div class="col-md-6">
+    <div class="card card-outline card-success">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-bolt mr-2"></i>Quick Actions</h3>
+      </div>
+      <div class="card-body">
+        <a href="{% url 'accounts:business_processes' %}" class="btn btn-outline-info btn-block mb-2">
+          <i class="fas fa-sitemap mr-2"></i> Add Business Process
+        </a>
+        <a href="{% url 'accounts:employees' %}" class="btn btn-outline-success btn-block mb-2">
+          <i class="fas fa-user-plus mr-2"></i> Register Employee
+        </a>
+        <a href="{% url 'accounts:evaluation_questions' %}" class="btn btn-outline-warning btn-block mb-2">
+          <i class="fas fa-question-circle mr-2"></i> Manage Questions
+        </a>
+        <a href="{% url 'accounts:analytics_dashboard' %}" class="btn btn-outline-danger btn-block">
+          <i class="fas fa-file-pdf mr-2"></i> Download Report
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card card-outline card-info">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-info-circle mr-2"></i>Setup Checklist</h3>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+  <li class="list-group-item d-flex justify-content-between">
+    <span>
+      <i class="fas fa-circle {% if checklist.processes %}text-success{% else %}text-secondary{% endif %} mr-2"></i>
+      Define business processes
+    </span>
+    {% if checklist.processes %}
+      <span class="badge badge-success">Done</span>
+    {% else %}
+      <span class="badge badge-secondary">Pending</span>
+    {% endif %}
+  </li>
+  <li class="list-group-item d-flex justify-content-between">
+    <span>
+      <i class="fas fa-circle {% if checklist.employees %}text-success{% else %}text-secondary{% endif %} mr-2"></i>
+      Register employee emails
+    </span>
+    {% if checklist.employees %}
+      <span class="badge badge-success">Done</span>
+    {% else %}
+      <span class="badge badge-secondary">Pending</span>
+    {% endif %}
+  </li>
+  <li class="list-group-item d-flex justify-content-between">
+    <span>
+      <i class="fas fa-circle {% if checklist.questions %}text-success{% else %}text-secondary{% endif %} mr-2"></i>
+      Configure questions
+    </span>
+    {% if checklist.questions %}
+      <span class="badge badge-success">Done</span>
+    {% else %}
+      <span class="badge badge-secondary">Pending</span>
+    {% endif %}
+  </li>
+  <li class="list-group-item d-flex justify-content-between">
+    <span>
+      <i class="fas fa-circle {% if checklist.evaluations %}text-success{% else %}text-secondary{% endif %} mr-2"></i>
+      Employees complete evaluations
+    </span>
+    {% if checklist.evaluations %}
+      <span class="badge badge-success">Done</span>
+    {% else %}
+      <span class="badge badge-secondary">Pending</span>
+    {% endif %}
+  </li>
+  <li class="list-group-item d-flex justify-content-between">
+    <span>
+      <i class="fas fa-circle {% if checklist.analytics %}text-success{% else %}text-secondary{% endif %} mr-2"></i>
+      View analytics &amp; reports
+    </span>
+    {% if checklist.analytics %}
+      <span class="badge badge-success">Done</span>
+    {% else %}
+      <span class="badge badge-secondary">Pending</span>
+    {% endif %}
+  </li>
+</ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
