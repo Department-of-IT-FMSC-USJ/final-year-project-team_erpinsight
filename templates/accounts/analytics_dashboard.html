@@ -47,7 +47,7 @@
   </a>
 </li>
 <li class="nav-item">
-  <a href="#" class="nav-link">
+  <a href="{% url 'accounts:analytics_dashboard' %}" class="nav-link">
     <i class="nav-icon fas fa-file-pdf"></i><p>Reports</p>
   </a>
 </li>
@@ -55,36 +55,49 @@
 
 {% block content %}
 
-<!-- Process Selection -->
+<!-- Process Selection — SINGLE FORM -->
 <div class="row">
   <div class="col-12">
     <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
       <div class="card-body">
         <form method="get" action="{% url 'accounts:analytics_dashboard' %}">
           <div class="row align-items-end">
+
+            <!-- Select Process -->
             <div class="col-md-4">
-              <label class="font-weight-bold"><i class="fas fa-sitemap mr-2" style="color:#7b1fa2;"></i>Select Process</label>
+              <label class="font-weight-bold">
+                <i class="fas fa-sitemap mr-2" style="color:#7b1fa2;"></i>Select Process
+              </label>
               <select name="process" class="form-control" onchange="this.form.submit()">
                 <option value="">-- Select Process --</option>
                 {% for p in processes %}
-                <option value="{{ p.pk }}" {% if process_id == p.pk|stringformat:"s" %}selected{% endif %}>{{ p.name }}</option>
+                <option value="{{ p.pk }}" {% if process_id == p.pk|stringformat:"s" %}selected{% endif %}>
+                  {{ p.name }}
+                </option>
                 {% endfor %}
               </select>
             </div>
+
+            <!-- Compare With (only shown when process selected) -->
             {% if selected_process %}
             <div class="col-md-4">
-              <label class="font-weight-bold"><i class="fas fa-exchange-alt mr-2" style="color:#7b1fa2;"></i>Compare With</label>
+              <label class="font-weight-bold">
+                <i class="fas fa-exchange-alt mr-2" style="color:#7b1fa2;"></i>Compare With
+              </label>
               <select name="compare" class="form-control" onchange="this.form.submit()">
                 <option value="">-- Select to Compare --</option>
                 {% for p in processes %}
                 {% if p != selected_process %}
-                <option value="{{ p.pk }}" {% if compare_id == p.pk|stringformat:"s" %}selected{% endif %}>{{ p.name }}</option>
+                <option value="{{ p.pk }}" {% if compare_id == p.pk|stringformat:"s" %}selected{% endif %}>
+                  {{ p.name }}
+                </option>
                 {% endif %}
                 {% endfor %}
               </select>
               <input type="hidden" name="process" value="{{ process_id }}">
             </div>
             {% endif %}
+
           </div>
         </form>
       </div>
@@ -94,6 +107,7 @@
 
 {% if selected_process and analytics_data %}
 
+<!-- Download PDF Button -->
 <div class="row mb-3">
   <div class="col-12 text-right">
     <a href="{% url 'accounts:download_report' %}?process={{ process_id }}{% if compare_id %}&compare={{ compare_id }}{% endif %}"
@@ -139,11 +153,13 @@
 
 <div class="row mt-4">
 
-  <!-- Category Chart -->
+  <!-- Category Radar Chart -->
   <div class="col-md-6">
     <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-chart-radar mr-2" style="color:#7b1fa2;"></i>Category Scores</h3>
+        <h3 class="card-title">
+          <i class="fas fa-chart-area mr-2" style="color:#7b1fa2;"></i>Category Scores
+        </h3>
       </div>
       <div class="card-body">
         <canvas id="categoryChart" height="250"></canvas>
@@ -155,7 +171,9 @@
   <div class="col-md-6">
     <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-stethoscope mr-2" style="color:#7b1fa2;"></i>Issue Diagnosis</h3>
+        <h3 class="card-title">
+          <i class="fas fa-stethoscope mr-2" style="color:#7b1fa2;"></i>Issue Diagnosis
+        </h3>
       </div>
       <div class="card-body">
         {% for item in analytics_data.diagnosis_issues %}
@@ -186,13 +204,16 @@
 
 </div>
 
-<!-- Process Comparison -->
+<!-- Process Comparison Chart -->
 {% if compare_process and compare_data %}
 <div class="row mt-2">
   <div class="col-12">
     <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-exchange-alt mr-2" style="color:#7b1fa2;"></i>Process Comparison</h3>
+        <h3 class="card-title">
+          <i class="fas fa-exchange-alt mr-2" style="color:#7b1fa2;"></i>
+          Process Comparison: {{ selected_process.name }} vs {{ compare_process.name }}
+        </h3>
       </div>
       <div class="card-body">
         <canvas id="comparisonChart" height="100"></canvas>
@@ -208,7 +229,9 @@
   <div class="col-12">
     <div class="card card-outline shadow" style="border-top: 4px solid #7b1fa2;">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-comments mr-2" style="color:#7b1fa2;"></i>Employee Feedback</h3>
+        <h3 class="card-title">
+          <i class="fas fa-comments mr-2" style="color:#7b1fa2;"></i>Employee Feedback
+        </h3>
       </div>
       <div class="card-body">
         {% for fb in analytics_data.feedbacks %}
@@ -272,11 +295,7 @@ new Chart(ctxCategory, {
   },
   options: {
     scales: {
-      r: {
-        beginAtZero: true,
-        max: 5,
-        ticks: { stepSize: 1 }
-      }
+      r: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } }
     }
   }
 });
@@ -287,7 +306,7 @@ const ctxCompare = document.getElementById('comparisonChart').getContext('2d');
 new Chart(ctxCompare, {
   type: 'bar',
   data: {
-    labels: ['Satisfaction', 'ROI Score', 'System Quality', 'Information Quality', 'Process Efficiency', 'User Satisfaction', 'Perceived ROI'],
+    labels: ['Satisfaction Score', 'ROI Score', 'System Quality', 'Information Quality', 'Process Efficiency', 'User Satisfaction', 'Perceived ROI'],
     datasets: [
       {
         label: '{{ selected_process.name }}',
@@ -315,11 +334,7 @@ new Chart(ctxCompare, {
   },
   options: {
     scales: {
-      y: {
-        beginAtZero: true,
-        max: 5,
-        ticks: { stepSize: 1 }
-      }
+      y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } }
     }
   }
 });
